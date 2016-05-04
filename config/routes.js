@@ -48,9 +48,9 @@ module.exports.routes = {
   '/requestPasswordReset': 'AuthController.sendTokenMail',
   'get /resetPassword/:token':  'AuthController.resetPassword',
   '/updatePassword':  'AuthController.updatePassword',
-
-
-  '/private': 'DashboardController.index'
+  
+  '/private': 'DashboardController.index',
+  '/becomeServiceProvider': { view: 'static/becomeEmployee' }
   
 
   /***************************************************************************

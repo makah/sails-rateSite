@@ -31,6 +31,11 @@ module.exports.policies = {
   'DashboardController': {
     '*': 'isAuthenticated'
   },
+  
+  Employee : {
+  	'create': ['isAuthenticated', 'insertUserId'],
+  }
+  
 
   /***************************************************************************
   *                                                                          *

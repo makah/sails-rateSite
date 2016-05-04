@@ -1,5 +1,7 @@
 
 module.exports = function(req, res, next) {
+    sails.log.verbose('[Policy.isAuthenticated() called] ' + __filename);
+    
     if (req.isAuthenticated()) {
         return next();
     }

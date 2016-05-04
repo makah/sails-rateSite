@@ -23,6 +23,17 @@ module.exports = {
             minLength: 6,
         },
 
+        //Association One-to-One, but using 'collection' to mantain sync updating
+        employer: {
+            collection: 'employer',
+            via: 'user'
+        },
+        
+        employee: {
+            collection: 'employee',
+            via: 'user'
+        },
+
         //Google Signin ID
         googleId: 'string',
         
@@ -42,19 +53,39 @@ module.exports = {
         }
     },
     
-    beforeCreate: function(user, cb) {
-        if (!user.password && !user.googleId) {
+    beforeCreate: function(values, cb) {
+        if (!values.password && !values.googleId) {
             var err = 'Missing password or single sigon';
             sails.log.error('User.beforeCreate', err);
             return cb(err);
         }
         
-        if (user.password) {
-            encryptPassword(user, cb);
+        if (values.password) {
+            encryptPassword(values, cb);
         }
         else {
             return cb();
         }
+    },
+    
+    afterCreate: function(newUser, cb) {
+        Employer.create({user: newUser.id})
+        .exec(function(err, newEmployer) {
+            if (err) {
+                sails.log.error('User.afterCreate: Creating Employer - error:', err);
+                return cb(err);
+            }
+
+            User.update(newUser.id, {employer: newEmployer.id})
+            .exec(function(err, user) {
+                if (err) {
+                    sails.log.error('User.afterCreate: Update User after creating Employer - error:', err);
+                    return cb(err);
+                }
+                
+                return cb();
+            });
+        });
     },
     
     beforeUpdate: function(user, cb) {
