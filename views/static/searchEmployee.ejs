@@ -1,0 +1,12 @@
+<h1>Search for a Service Provider</h1>
+
+<div>
+    <% for(var i=0; i<result.length; i++) { %>
+      <div>
+        <span><b><%= result[i].user.name %></b></span><br />
+        <span><%= result[i].cachedRating || "-" %></span><br />
+        <span><%= result[i].workingRegion %></span><br />
+      </div>
+      <br />
+    <% } %>
+</div>
