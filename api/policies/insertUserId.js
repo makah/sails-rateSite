@@ -3,8 +3,8 @@
 module.exports = function(req, res, next) {
     sails.log.verbose('[Policy.insertUserId() called] ' + __filename);
     
-    if (req.session && req.session.passport && req.session.passport.user) {
-        req.body.user = req.session.passport.user;
+    if (req.session) {
+        req.body.user = AuthService.getUser(req.session);
         return next();
     }
     
