@@ -50,8 +50,8 @@ module.exports.routes = {
   '/updatePassword':  'AuthController.updatePassword',
   
   '/private': 'DashboardController.index',
-  '/becomeServiceProvider': { view: 'static/becomeEmployee' }
-  
+  '/becomeServiceProvider': { view: 'static/becomeEmployee' },
+  '/search': { view: 'static/searchEmployee' },
 
   /***************************************************************************
   *                                                                          *

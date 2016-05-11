@@ -1,11 +1,16 @@
 <h1>Search for a Service Provider</h1>
 
 <div>
-    <% for(var i=0; i<result.length; i++) { %>
+    <% for(var i=0; i<employees.length; i++) { %>
       <div>
-        <span><b><%= result[i].user.name %></b></span><br />
-        <span><%= result[i].cachedRating || "-" %></span><br />
-        <span><%= result[i].workingRegion %></span><br />
+        <span><b><%= employees[i].user.name %></b></span><br />
+        <span><%= employees[i].cachedRating || "-" %></span><br />
+        <span><%= employees[i].workingRegion %></span><br />
+        <form method="POST" action="/Review/userReview">
+          <input type="hidden" name="employeeName" value="<%= employees[i].user.name %>" />
+          <input type="hidden" name="employeeID" value="<%= employees[i].id %>" />
+          <input type="submit" value="Review">
+        </form>
       </div>
       <br />
     <% } %>

@@ -34,6 +34,10 @@ module.exports.policies = {
   
   Employee : {
   	'create': ['isAuthenticated', 'insertUserId'],
+  },
+  
+  Review : {
+  	'create': ['isAuthenticated', 'insertUserId'],
   }
   
 

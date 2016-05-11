@@ -1,0 +1,14 @@
+
+<h1>Make your Review</h1>
+
+<h2><%= employeeName%></h2>
+
+<form method="POST" action="/Review">
+    <input type="hidden" name="employee" value="<%= employeeID %>" />
+    <br/>
+    Rating: <input type="number" name="rating" value="3" />
+    <br/>
+    Comment: <textarea rows="6" name="comment" cols="60" placeholder="Add your comment here"></textarea>
+    <br/>
+    <input type="submit" value="Make a review">
+</form>

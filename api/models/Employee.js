@@ -17,11 +17,19 @@ module.exports = {
     workingRegion: 'string',
 
     cachedRating: 'integer',
+    cachedRatingCount: 'integer',
 
-    
+    review: {
+      collection: 'review',
+      via: 'employee'
+    },
   },
 
   beforeCreate: function(values, next) {
+    
+    // Add default value to Cached Rating
+    values.cachedRating = 0;
+    values.cachedRatingCount = 0;
 
     // Check if user was added
     if (!values.user) {

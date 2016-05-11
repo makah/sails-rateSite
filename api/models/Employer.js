@@ -13,7 +13,10 @@ module.exports = {
       unique: true,
     },
 
-    
+    review: {
+      collection: 'review',
+      via: 'employer'
+    },
   },
     
   beforeCreate: function(values, next) {

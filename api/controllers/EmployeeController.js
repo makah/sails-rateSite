@@ -22,13 +22,10 @@ module.exports = {
         };
         
         SearchService.employee(options).then(function(result){
-           res.render('static/searchEmployee', {result: result});
+           res.render('static/searchEmployee', {employees: result});
         }).catch(function(err){
             return res.send(err);
         });
-      
-      
-      
     },
     
 };
