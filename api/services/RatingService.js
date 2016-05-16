@@ -12,16 +12,19 @@ module.exports = {
           if(!employee){
             var msg = "Failed to update Employee rate. 'employee' not found";
             sails.log.error('RatingService.updateEmployee.findEmployee:', msg);
-            return Promise.reject(msg);
+            return Promise.reject(new Error(msg));
           }
           
           return employee;
         });
-        
+         
         var updateValueTask = employeeTask.then(function(employee){
             var qnt = employee.cachedRatingCount;
             var totalRating = employee.cachedRating * qnt + rateValue;
-            var totalQuantity = qnt+1;
+            var totalQuantity = qnt + 1;
+            
+            sails.log.verbose('[RatingService.updateEmployee.updateValue] cachedRatingCount:' + employee.cachedRatingCount
+                    + ' before cachedRating:' + employee.cachedRating + 'new rateValue:' + rateValue);
             
             return {
                 cachedRating: totalRating / totalQuantity,
@@ -29,13 +32,9 @@ module.exports = {
             };
         });
         
-        updateValueTask.then(function(query){
+        
+        return updateValueTask.then(function(query){
             return Employee.update(employeeId, query);
-        }).then(function(){
-            return Promise.resolve();
-        }).catch(function(err){
-            sails.log.error('RatingService.updateEmployee', err);
-            return Promise.reject(err);
         });
     },
     

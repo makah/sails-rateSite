@@ -20,7 +20,7 @@ module.exports = {
     rating: {
       type: 'integer',
       min: 0,  //Between 1 to 4 stars
-      max: 5,
+      max: 4,
     },
 
     comment: {
@@ -86,15 +86,27 @@ module.exports = {
     });
   },
   
+  
   afterCreate: function(newReview, next) {
+    sails.log.verbose('Review.afterCreate: ', 'NewReview', newReview);
+
+    if(!newReview.employee){
+      var msg = "New Review has no Employee. 'employee' not found";
+      sails.log.error('Review.afterCreate:', msg);
+      return next(msg);
+    }
     
-    //Update cache Rate
-    var query = { cachedRating: newReview.rating, cachedRatingCount: 1 };
-    Employee.update(newReview.employee, query).then(function(){
-      return next();
-    }).catch(function(err){
-      return next(err);
-    });
+    
+    var query = {id: newReview.employee};
+    Employee.findOne(query).then(function(employee){
+      if(!employee){
+        var msg = "Failed to find Employee. 'employee' not found";
+        sails.log.error('Review.afterCreate.findUser:', msg);
+        return next(msg);
+      }
+      
+      return RatingService.updateEmployee(newReview.rating, employee.id).asCallback(next);
+    }); 
   },
 
 };

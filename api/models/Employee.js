@@ -16,7 +16,7 @@ module.exports = {
 
     workingRegion: 'string',
 
-    cachedRating: 'integer',
+    cachedRating: 'float',
     cachedRatingCount: 'integer',
 
     review: {
