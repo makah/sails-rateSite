@@ -34,21 +34,76 @@ Exemplo de uso: Chaveiro/Cliente; Médico/Paciente; Possuidor de Carro/Cliente; 
     2. Implementar o Google Auth via [passport-google-oauth](http://passportjs.org/docs/google) seguindo o tutorial do [sails-social-auth-example](https://github.com/stefanbuck/sails-social-auth-example/blob/master/config/express.js) e o tutorial do [Michael Herman](http://mherman.org/blog/2013/11/10/social-authentication-with-passport-dot-js/#.VxUt8_krKCh)
     3. Note que não precisamos fazer o google/callback porque o controller pega todos os google/* [FIX](https://github.com/stefanbuck/sails-social-auth-example/issues/10)
     4. Me ajudou ler essa [pergunta do Stackoverflow](http://stackoverflow.com/questions/11485271/google-oauth-2-authorization-error-redirect-uri-mismatch)
-7. Alterei o User porque o beforeUpdate estava fazendo o hash do hash da senha - commit []
+7. Alterei o User porque o beforeUpdate estava fazendo o hash do hash da senha - [commit](https://github.com/makah/sails-rateSite/commit/f53d644bba1d22bdc3203545de4217a6123b567d)
     1. Me ajudou um issue do [Sails-REST-API](https://github.com/ghaiklor/generator-sails-rest-api/issues/70)
 
 
 ### Fase 3 - Início da parte de negócio ###
 Começaremos a parte de negócio que cria o conceito de Empregado (Employer) e Prestador de Serviço (Employee). O prestador de serviço deve definir a sua área de atuação. Também será criado o conceito de comentários, que possui um Empregado, um Prestador de Serviço, uma classificação e o texto do comentário. 
 
-1. Criar o Employer e Employee. O Employee possui uma área de atuação `workingRegion` específica. - [commit](https://github.com/makah/sails-rateSite/commit/2313df1bca75ebbf3d969ddefc316f5374fb4cfe)
+1. Criar o Employer e Employee - [commit](https://github.com/makah/sails-rateSite/commit/2313df1bca75ebbf3d969ddefc316f5374fb4cfe)
     1. Todos os usuários possuem um Employer por padrão (criado no `beforeCreate()` do User). O Employee é criado na tela principal quando o usuário está logado (Dashboard).
     2. Na realidade o User possuirá dois perfis um como Employer e outro como Employee e terá um [relacionamento de um para um](http://sailsjs.org/documentation/concepts/models-and-orm/associations/one-to-one)
-    3. Atualmente o `workingRegion` está em formato de string. No futuro podemos criar um Model Região e permitir uma [relacionamento um para vários](http://sailsjs.org/documentation/concepts/models-and-orm/associations/one-to-many). 
+    3.  O Employee possui uma área de atuação `workingRegion` específica. Atualmente o `workingRegion` está em formato de string. No futuro podemos criar um Model Região e permitir uma [relacionamento um para vários](http://sailsjs.org/documentation/concepts/models-and-orm/associations/one-to-many). 
     4. Criamos a política `policies/insertUserId.js` que adiciona o usuário logado (userID) dentro da requisição enviada (body.param do POST). Peguei ideia do [Tarmo Leppänen](https://github.com/tarlepp/angular-sailsjs-boilerplate-backend/blob/master/api/policies/addDataCreate.js) via Gitter e pelo Código.
+2. Criar a busca pelos Employees - [commit](https://github.com/makah/sails-rateSite/commit/8204bcf89baabd4e76da30a03008c4ba7b9af861)
+    1. Preferi criar um serviço de busca que é responsável por ter o algoritmo de busca. Inicialmente criei apenas a busca pelo prestador de serviço
+    2. O EmployeeController é responsável apenas por organizar o _request_ para o serviço e criar o _response_ para o usuário
+    3. Criei uma view simples com postback mesmo. A pesquisa ficou na área privada (dashboard) e o resultado em uma página a parte.
+3. Criar a estrutura de Review - [commit](https://github.com/makah/sails-rateSite/commit/a4c60affcc65f4a2480be2e4b8568b78da769625)
+    1. Um review possui um comentário e um rating, e tem um relacionamento de um para um com um cliente e um prestado de serviço.
+    2. Escolhi colocar o rating como um número de 1 a 4. Note que o review terá um rating com quantidades de escolhas pares. Gostei dessa abordagem por obrigar ao usuário a escolher um lado, removendo opiniões neutras ou sem opiniões - [exemplo](http://fluidsurveys.com/university/odds-evens-ongoing-debate-rating-scale/)
+    3. Nesse commit, apenas de eu criar o RatingService, eu não estou fazendo o cálculo médio do rating. Farei no próximo commit.
+4. Adicionar o [MongoDB](https://www.mongodb.com/) - [commit](https://github.com/makah/sails-rateSite/commit/d1155b703e292b1280e9d70c0766a4083e4e411e)
+    1. Segui o tutorial do [Ponzi Coder](http://irlnathan.github.io/sailscasts/blog/2013/08/30/building-a-sails-application-ep10-changing-databases-to-mongodb-with-sails-adapters/) que utiliza [sails-mongo](https://github.com/balderdashy/sails-mongo)
+    2. Depois criei os usuários root e rateServerName e depois rodei o mongod com `--auth` - [tutoral](http://www.codexpedia.com/devops/mongodb-authentication-setting/)
+    3. Por segurança, eu coloquei o usuário e senha no config/local.js:
+    ```
+    connections: {
+      mongodb: {
+          user: 'MY_NAME',
+          password: 'MY_PASSWORD_WITHOUT_@_CHAR',
+      }
+    }
+    ```
+    4. Bom [tutorial](http://mongly.openmymind.net/tutorial/index) do MongoDB
+5. Fazer o cálculo do rating cache dos prestadores de serviço corretamente - [commit](https://github.com/makah/sails-rateSite/commit/dfc0909f32c9204e3278007cc24316bf5757089a)
+    1. Criei o serviço `services/RatingService.js` para tratar dos cálculos de rating dos Prestadores de serviço
+    2. Atualmente estou fazendo uma média simples para determinar o rating do prestador de serviço
+    3. Eu escolhi deixar um cache porque imaginei que o cálculo de rating pode ser muito custoso para ser executado a todo momento - eu precisaria de todos os reviews de cada usuário
+    4. Achei melhor criar uma serviço, a deixar no controller, porque:
+        1. Quero que um job execute a tarefa de recalcular o rating de todos os usuários
+        2. Podemos ter ratings de outros models
+        3. Podemos ter um algoritmos mais complexos que leve em conta a expertise do usuário ou a relevância do voto e etc. - exemplo de [cálculo do IMDB](http://www.imdb.com/help/show_leaf?votestopfaq)
+6. Criar o cachedRating como uma tarefa externa - [commit](https://github.com/makah/sails-rateSite/commit/665541a3a1d6546671cb02445e2f65d753025a90)
+    1. Ter o cache do rating do Prestador de serviço otimiza bastante o tempo de resposta do servidor para responder requisições de pesquisa. Por outro lado, me obriga a criar uma terefa para recalcular o cache em algum momento.
+    2. Para resolver esse problema eu optei por utilizar o [sails-hook-jobs](https://www.npmjs.com/package/sails-hook-jobs), que utiliza o projeto [Agenda do rschmukler](https://github.com/rschmukler/agenda) e possui persistência do MongoDB. Outra opção seria o [sails-hook-schedule](https://www.npmjs.com/package/sails-hook-schedule)
+        1. Para a instalação do hook eu segui os passos do [manual](https://www.npmjs.com/package/sails-hook-jobs)
+        2. Eu escolhi deixar como padrão o scheduler como disable, em config/hooks.js. Se quiser ligar bastar colocar na configuração ou no locals.js `hooks: {"jobs": true}`. Também pode desabilitar uma tarefa específica via `disable: true` dentro da configuração do próprio job.
+        3. Para configurar o mongoDB (que já está estou usando no projeto e com --auth) segui os passos:
+        ```
+        show databases
+        use jobs
+        db.createUser(
+          {
+        	user: "JobScheduler_SailsServer",
+        	pwd: "MY_PASSWORD",
+        	roles: [ { role: "root", db: "admin" } ]
+          }
+        );
+        ```
+    3. Como o sails provê uma forma de levantar um servidor que não execute nenhum request (via [sails.load()](http://sailsjs.org/documentation/reference/application/sails-load) [exemplo](http://stackoverflow.com/questions/24123090/using-waterline-model-outside-sailsjs-api), eu consigo levantar um servidor sails que execute unicamente as tarefas/jobs.
 
+Fase 4
+    Testes
 
-Fase 4 
+Fase 5
+    Microservice com scheduler/cron para atualizar o cacheRating (que pode ficar desatualizado por algum motivo).
+
+Fase 6
+    Usar o Angular, de preferência usar esse projeto como back apenas e um front em angular separado
+
+Fase 7
 Buitify. Colocar favicon; usar foundation
 
 
@@ -60,5 +115,9 @@ Buitify. Colocar favicon; usar foundation
 
 ### Dificuldades ###
 Eu não consegui usar o `config/local.js`, nem o `config/env/*.js` dentro do `config/passport.js`. Gostaria de usa-lo para salvar o appURL e o GoogleAPI. 
-Depois de algum estudo, verifiquei que o Sails não tem um suporte 100% para esse tipo de uso. Então decidi colocar o appURL (variável com a URL) como uma variável do ambiente `APP_URL="http://falcon-medico-makah.c9users.io:8080/" sails lift` - preferia ter colocado em `config/env/*`. [commit](https://github.com/makah/sails-rateSite/commit/cdb3298827f27ea2a5e0c4b630f6cb25861dbfe4)
+
+Depois de algum estudo, verifiquei que o Sails não tem um suporte 100% para esse tipo de uso. Então decidi colocar o appURL (variável com a URL) como uma variável do ambiente `APP_URL="http://falcon-medico-makah.c9users.io:8080/" sails lift` - preferia ter colocado em `config/env/*`. [commit](https://github.com/makah/sails-rateSite/commit/cdb3298827f27ea2a5e0c4b630f6cb25861dbfe4) 
+
 Já o GoogleAPI eu coloquei o workarround `require(./local)` - [Stackoverflow](http://stackoverflow.com/questions/36563270/how-do-i-access-environment-variables-in-config-sailsjs)
+
+Podemos usar o Waterline via callback .exec() ou via promise .then(), como eu prefiro usar a Promise, optei pelo .then() - até ai tudo bem. A questão é que o .then() me retorna uma Bluebird Promise, mas isso não quer dizer que eu posso criar uma Promise sem adicionar a biblioteca no meu projeto - eu tenho acesso ao objecto Promise já criado, não à bibilioteca. Pata ter acesso eu adicionei o Bluebird no projeto e adicionei o `requre("Bluebird")`.
