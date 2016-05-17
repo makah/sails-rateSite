@@ -54,18 +54,34 @@ module.exports = {
     },
     
     beforeCreate: function(values, cb) {
+        var err;
         if (!values.password && !values.googleId) {
-            var err = 'Missing password or single sigon';
+            err = 'Missing password or single sigon';
             sails.log.error('User.beforeCreate', err);
             return cb(err);
         }
         
-        if (values.password) {
-            encryptPassword(values, cb);
+        var recaptchaResponse = values["g-recaptcha-response"];
+        values["g-recaptcha-response"] = undefined;
+        
+        if(!recaptchaResponse){
+            err = 'Missing reCAPTCHA response';
+            sails.log.error('User.beforeCreate', err);
+            return cb(err);
         }
-        else {
-            return cb();
-        }
+        
+        AuthService.verifyRecaptcha(recaptchaResponse).then(function(){
+             
+             if (values.password)
+                 encryptPassword(values, cb);
+             else 
+                return cb();
+                
+        }).catch(function(){
+            err = 'Bot attack or dummy user';
+            sails.log.error('User.beforeCreate', err);
+            return cb(err);
+        });
     },
     
     afterCreate: function(newUser, cb) {
