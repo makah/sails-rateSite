@@ -93,6 +93,10 @@ Começaremos a parte de negócio que cria o conceito de Empregado (Employer) e P
         );
         ```
     3. Como o sails provê uma forma de levantar um servidor que não execute nenhum request (via [sails.load()](http://sailsjs.org/documentation/reference/application/sails-load) [exemplo](http://stackoverflow.com/questions/24123090/using-waterline-model-outside-sailsjs-api), eu consigo levantar um servidor sails que execute unicamente as tarefas/jobs.
+7. [minor] Criar a política policies/insertData que utilizo para debug de request - [commit](https://github.com/makah/sails-rateSite/commit/830eebb4f39b77cf5b0c995352868c288fd4317a)
+8. Adiciona reCAPTCHA - [commit](https://github.com/makah/sails-rateSite/commit/13df98706a14d89d0d5b5340d90f36cf1b5f9ae9)
+    1. Utilizei a biblioteca [reCAPTCHA2](https://www.npmjs.com/package/recaptcha2), segundo o tutoral com tranquilidade
+    2. Como todas as outras senhas, eu as coloquei no config/locals.js
 
 Fase 4
     Testes
