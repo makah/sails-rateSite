@@ -21,6 +21,51 @@ describe('UserModel', function() {
         });
     });
     
+    describe('#reCAPTCHA()', function(done) {
+        var defaultUser = {
+            name: 'Mr.Jones',
+            email: 'a@b.co',
+            password: '111222333',
+            "g-recaptcha-response": 'valid',
+        };
+        
+        before(function() {
+            // Mocking reCAPTCHA
+            sinon.stub(sails.services.authservice, 'verifyRecaptcha', function(response, clientIP) {
+                return response == 'valid' ? Promise.resolve() : Promise.reject();
+            });
+        });
+        
+        after(function(done) {
+          // Restores our mock to the original service
+          sails.services.authservice.verifyRecaptcha.restore();
+          return clearDB(done);
+        });
+        
+        it('should check if reCAPTCHA is running without error when Service return ok', function(done){
+            var usr = _.clone(defaultUser);
+            
+            User.create(usr).then(function(results) {
+                done();
+            })
+            .catch(function(err){
+                done(err);
+            });
+        });
+        
+        it('should check if reCAPTCHA is running without error when Service return fail', function(done){
+            var usr = _.clone(defaultUser);
+            usr["g-recaptcha-response"] = 'invalid';
+            
+            User.create(usr).then(function(results) {
+                done("[Test Fail] No error raised!");
+            })
+            .catch(function(err){
+                done(err.code === 'E_UNKNOWN'? undefined : err);
+            });
+        });
+    });
+    
     describe('#invalid create()', function() {
         
         var defaultUser = {
