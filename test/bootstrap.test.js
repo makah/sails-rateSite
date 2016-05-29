@@ -3,28 +3,14 @@ var sails = require('sails');
 before(function before(done) {
     this.timeout(7000);
 
+    /**  The configuration exported in config/local.js takes precedence 
+     * over config/env/test.js configuration files, but config params takes precedence
+     * over everything, thats why I'm using this config also
+     **/
     var config = {
-        environment: 'test',
-
-
-        models: {
-            connection: 'localDiskDb',
-            migrate: 'drop'
-        },
-
-        csrf: false,
-
         log: {
-            level: 'error'
+            level: 'silent'
         },
-
-        hooks: {
-            grunt: false,
-            socket: false,
-            pubsub: false,
-            jobs: false,
-        }
-
     };
 
     sails.lift(config, function(err, server) {

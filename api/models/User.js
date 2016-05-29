@@ -35,10 +35,10 @@ module.exports = {
         },
 
         //Google Signin ID
-        googleId: 'string',
+        googleId: String,
         
         //Access token from the Google Authorization Server
-        googleAccessToken: 'string',
+        googleAccessToken: String,
         
         resetPasswordToken: String,
         resetPasswordExpires: Date,
@@ -54,9 +54,9 @@ module.exports = {
     },
     
     beforeCreate: function(values, cb) {
-        var err;
+        var err = new Error(); err.status = 403;
         if (!values.password && !values.googleId) {
-            err = 'Missing password or single sigon';
+            err.message = 'Missing password or single sigon';
             sails.log.error('User.beforeCreate', err);
             return cb(err);
         }
@@ -65,7 +65,7 @@ module.exports = {
         values["g-recaptcha-response"] = undefined;
         
         if(!recaptchaResponse){
-            err = 'Missing reCAPTCHA response';
+            err.message = 'Missing reCAPTCHA response';
             sails.log.error('User.beforeCreate', err);
             return cb(err);
         }
@@ -78,13 +78,14 @@ module.exports = {
                 return cb();
                 
         }).catch(function(){
-            err = 'Bot attack or dummy user';
+            err.message = 'Bot attack or dummy user';
             sails.log.error('User.beforeCreate', err);
             return cb(err);
         });
     },
     
     afterCreate: function(newUser, cb) {
+        
         Employer.create({user: newUser.id})
         .exec(function(err, newEmployer) {
             if (err) {
