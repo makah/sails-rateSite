@@ -19,12 +19,12 @@ Exemplo de uso: Chaveiro/Cliente; Médico/Paciente; Possuidor de Carro/Cliente; 
     3. Info: A maioria dos flash() que criarei no projeto serão no próprio cliente (quando eu usar o AngularJS), não preciso de um modelo muito complexo.
     4. Eu quero fazer um req.flash() e req.redirect('/') na policies/isAuthenticated.js
     5. Eu pensei em usar a proposta de um [serviço 'FlashService' + política 'flash'](http://stackoverflow.com/a/25352340/205034), mas acho que é mais complexo do que eu preciso, i.e. temos que adicionar a policy sempre antes de outras policies que precisam do flash, e principalmente, não podemos fazer um flash e redirect() como era o objectivo.    6. Acabei usando a [ideia](http://stackoverflow.com/a/28621678/205034) do req.flash() simples. Criando um partial EJS para cuidar disso - alterei o EJS da resposta para fazer para um for no req.flash() [mais robusto]
-4. Enviar o password encriptado para o servidor.
+4. Enviar o password encriptado para o servidor. 
     1. Vou continua enviando plain text porque usamos HTTPS
     2. [Explicação¹](http://stackoverflow.com/a/4121657)
     3. [Javascript Cryptography](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/august/javascript-cryptography-considered-harmful/)
 5. Criar esqueci minha senha
-    1. Etapas: (Usuário pede para resetar senha em /forgotPassword) -> (Servidor Envia email) -> (Usuário redefine a senha passando como parâmetro o token recebido no email) -> (Servidor atualiza a senha e invalida token). Segui o tutorial do [Sahat Yalkabov](http://sahatyalkabov.com/how-to-implement-password-reset-in-nodejs/)
+    1. Etapas: (Usuário pede para resetar senha em /forgotPassword) -> (Servidor Envia email) -> (Usuário redefine a senha passando como parâmetro o token recebido no email) -> (Servidor atualiza a senha e invalida token). Segui o tutorial do [Sahat Yalkabov](http://sahatyalkabov.com/how-to-implement-password-reset-in-nodejs/).
     2. Permitir mandar email. Utilizei o [sails-hook-email](https://github.com/balderdashy/sails-hook-email) (tive muito problema de timeout. Acho melhor usar a API do mailGun) - [commit](https://github.com/makah/sails-rateSite/commit/1122dfcaa40f6c376a31d0b5d9170204f407a59e)
         1. Para as configurações do Email (principalmente a senha) não ficarem no repositório, eu as coloquei no [config.local](http://sailsjs.org/documentation/concepts/configuration/the-local-js-file) que não é versionado por default.
         2. Eu estava com problema para enviar email pelo Gmail. Para resolver eu ativei o 2-steps verification e adicionei um 'App Password'. Também tentei usar o [Mailgun](https://www.mailgun.com/)
@@ -77,7 +77,7 @@ Começaremos a parte de negócio que cria o conceito de Empregado (Employer) e P
         3. Podemos ter um algoritmos mais complexos que leve em conta a expertise do usuário ou a relevância do voto e etc. - exemplo de [cálculo do IMDB](http://www.imdb.com/help/show_leaf?votestopfaq)
 6. Criar o cachedRating como uma tarefa externa - [commit](https://github.com/makah/sails-rateSite/commit/665541a3a1d6546671cb02445e2f65d753025a90)
     1. Ter o cache do rating do Prestador de serviço otimiza bastante o tempo de resposta do servidor para responder requisições de pesquisa. Por outro lado, me obriga a criar uma terefa para recalcular o cache em algum momento.
-    2. Para resolver esse problema eu optei por utilizar o [sails-hook-jobs](https://www.npmjs.com/package/sails-hook-jobs), que utiliza o projeto [Agenda do rschmukler](https://github.com/rschmukler/agenda) e possui persistência do MongoDB. Outra opção seria o [sails-hook-schedule](https://www.npmjs.com/package/sails-hook-schedule)
+    2. Para resolver esse problema eu optei por utilizar o [sails-hook-jobs](https://www.npmjs.com/package/sails-hook-jobs), que utiliza o projeto [Agenda do rschmukler](https://github.com/rschmukler/agenda) e possui persistência do MongoDB. Outra opção seria o [sails-hook-schedule](https://www.npmjs.com/package/sails-hook-schedule) ou [node-schedule](http://www.worldnucleus.com/2014/12/run-cron-job-in-sailsjs.html) ou [node-cron](https://github.com/ncb000gt/node-cron). Discussão interesante sobre [Scheduler no Sails](https://github.com/balderdashy/sails/issues/2092)
         1. Para a instalação do hook eu segui os passos do [manual](https://www.npmjs.com/package/sails-hook-jobs)
         2. Eu escolhi deixar como padrão o scheduler como disable, em config/hooks.js. Se quiser ligar bastar colocar na configuração ou no locals.js `hooks: {"jobs": true}`. Também pode desabilitar uma tarefa específica via `disable: true` dentro da configuração do próprio job.
         3. Para configurar o mongoDB (que já está estou usando no projeto e com --auth) segui os passos:
@@ -98,16 +98,35 @@ Começaremos a parte de negócio que cria o conceito de Empregado (Employer) e P
     1. Utilizei a biblioteca [reCAPTCHA2](https://www.npmjs.com/package/recaptcha2), segundo o tutoral com tranquilidade
     2. Como todas as outras senhas, eu as coloquei no config/locals.js
 
-Fase 4
-    Testes
-
+### Fase 4 - Testes ###
+O Sails [aconselha](http://www.zsoltnagy.eu/Writing-Automated-Tests-with-Mocha-and-Chai/) utilizar para os testes o [Mocha](https://mochajs.org/) com [Chai](http://chaijs.com/).
+Li um [artigo](http://www.zsoltnagy.eu/Writing-Automated-Tests-with-Mocha-and-Chai/) bem básico que explica muito bem o Mocha + Chai. De qualquer forma achei muito confuso, porque existem 1000 soluções na web e achei difícil encontrar um exemplo completo com explicação - com teste de serviço, mock de serviço e etc.
+1. Segui os passos do [Sails/Testing](http://sailsjs.org/documentation/concepts/testing) e com o exemplo do [Tarmo Leppänen](https://github.com/tarlepp/angular-sailsjs-boilerplate-backend/tree/d7968a714af79d1f82a8bbe1554e334a9f8d3f67/test) e [albertosouza](https://github.com/albertosouza/sails-test-example/tree/master/test) - [commit](https://github.com/makah/sails-rateSite/commit/85b8928e56ab599ef4fb82f56459827d1e23efbe)
+    1. Mesmo com muita informação, o passo-a-passo do Sails resolveu bem
+    2. Só precisei aprender o que eu precisava instalar; alterar o banco de dados para o `localDiskDb`; desativar os hooks que não são necessários para reduzir o tempo de inicialização do Sails
+2. Criar um configuração para o teste e adicionar alguns testes - [commit](https://github.com/makah/sails-rateSite/commit/ae35cf2a68d84a205c16c626ad9c48abd021a43d)
+    1. Criar uma `config/env/test.js` para deixar as configurações específicas dos testes
+    2. Estou utilizando o sails-memory
+    3. Como a configuração do `config/local/js` é prioridade de todas as configurações, coloquei como prioridade no `test/bootstrap.test.js` o log como `silent`
+3. Criar um teste com Mock do serviço utilizado no Modelo - [commit](https://github.com/makah/sails-rateSite/commit/a59ea3b8796505a4a1c64ae5bed675893df0386c)
+    1. Para testar a criação do User foi necesário utilizar um mock do serviço de autenticação, já que o `User.beforeCreate()` utiliza um CAPTCHA.
+    2. Tomei como base no artigo do [Sergio Cruz](https://blog.sergiocruz.me/unit-testing-sails-js-how-to-mock-sailsjs-services-in-controllers/)
+    3. Usei o [sinon](http://sinonjs.org/)
+    4. Estou usando um drop no after() para limpar o banco de dados, mas nessa pergunta temos outra solução http://stackoverflow.com/questions/26063827/drop-the-entire-sails-memory-database
+4. Criar um teste de Controller
+5. Criar um exemplo que dependa de uma base de dados (fixtures)
+6. Fazer todos os testes 
+    
+    
+    A continuação do [artigo](http://www.zsoltnagy.eu/asynchronous-tests-and-fixtures-with-mocha-and-chaijs/) que explica Fixtures.
+    
+    
+    
+    
 Fase 5
-    Microservice com scheduler/cron para atualizar o cacheRating (que pode ficar desatualizado por algum motivo).
-
-Fase 6
     Usar o Angular, de preferência usar esse projeto como back apenas e um front em angular separado
 
-Fase 7
+Fase 6
 Buitify. Colocar favicon; usar foundation
 
 
@@ -116,6 +135,7 @@ Buitify. Colocar favicon; usar foundation
 #### Detalhes de implementação ####
 * Para o front/CSS pensei em usar [Foundation](http://foundation.zurb.com/), mas depois de estudar um pouco verifiquei que vou deixar a parte de design para depois. Não tenho competência para isso no momento.
 * Utilizei async para algumas tarefas ao invés de callback diretamente - [tutorial](http://sahatyalkabov.com/jsrecipes/#!/backend/organizing-callbacks-with-async). Pessoalmente eu prefiro [Promise](https://github.com/kriskowal/q/wiki/API-Reference) que já uso no angular.js, mas as libs são feitas com callback, por isso preferi utilizar o async a usar uma Promise com wrapper
+* 
 
 ### Dificuldades ###
 Eu não consegui usar o `config/local.js`, nem o `config/env/*.js` dentro do `config/passport.js`. Gostaria de usa-lo para salvar o appURL e o GoogleAPI. 

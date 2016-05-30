@@ -1,3 +1,5 @@
+/* global sails User Employer AuthService  */
+
 /**
  * User.js
  *
@@ -35,17 +37,18 @@ module.exports = {
         },
 
         //Google Signin ID
-        googleId: String,
+        googleId: 'string',
         
         //Access token from the Google Authorization Server
-        googleAccessToken: String,
+        googleAccessToken: 'string',
         
-        resetPasswordToken: String,
-        resetPasswordExpires: Date,
+        resetPasswordToken: 'string',
+        resetPasswordExpires: 'date',
         
         toJSON: function() {
             var obj = this.toObject();
             delete obj.password;
+            delete obj.googleAccessToken;
             delete obj.resetPasswordToken;
             delete obj.resetPasswordExpires;
             
@@ -54,8 +57,11 @@ module.exports = {
     },
     
     beforeCreate: function(values, cb) {
+        if(values.googleId)
+            return cb();
+        
         var err = new Error(); err.status = 403;
-        if (!values.password && !values.googleId) {
+        if (!values.password) {
             err.message = 'Missing password or single sigon';
             sails.log.error('User.beforeCreate', err);
             return cb(err);
@@ -63,7 +69,6 @@ module.exports = {
         
         var recaptchaResponse = values["g-recaptcha-response"];
         values["g-recaptcha-response"] = undefined;
-        
         if(!recaptchaResponse){
             err.message = 'Missing reCAPTCHA response';
             sails.log.error('User.beforeCreate', err);
@@ -71,12 +76,7 @@ module.exports = {
         }
         
         AuthService.verifyRecaptcha(recaptchaResponse).then(function(){
-             
-             if (values.password)
-                 encryptPassword(values, cb);
-             else 
-                return cb();
-                
+             encryptPassword(values, cb);
         }).catch(function(){
             err.message = 'Bot attack or dummy user';
             sails.log.error('User.beforeCreate', err);
@@ -118,14 +118,18 @@ module.exports = {
 
 function encryptPassword(user, cb) {
     bcrypt.genSalt(9, function(err, salt) {
+        if (err) {
+            sails.log.error('User.encryptPassword.getSalt', err);
+            return cb(err);
+        }
+        
         bcrypt.hash(user.password, salt, function(err, hash) {
             if (err) {
-                sails.log.error('User.encryptPassword', err);
+                sails.log.error('User.encryptPassword.hash', err);
                 return cb(err);
             }
             
             user.password = hash;
-            
             return cb();
         });
     });

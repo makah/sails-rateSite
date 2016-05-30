@@ -42,7 +42,7 @@ describe('UserModel', function() {
           return clearDB(done);
         });
         
-        it('should check if reCAPTCHA is running without error when Service return ok', function(done){
+        it('should check if reCAPTCHA is running without error when Service returns ok', function(done){
             var usr = _.clone(defaultUser);
             
             User.create(usr).then(function(results) {
@@ -53,7 +53,7 @@ describe('UserModel', function() {
             });
         });
         
-        it('should check if reCAPTCHA is running without error when Service return fail', function(done){
+        it('should check if reCAPTCHA is running without error when Service returns fail', function(done){
             var usr = _.clone(defaultUser);
             usr["g-recaptcha-response"] = 'invalid';
             

@@ -47,8 +47,13 @@ module.exports = {
                 });
             }
             req.logIn(user, function(err) {
-                if (err)
-                    return res.send(err);
+                if (err){
+                    return res.send({
+                        err: err,
+                        info: info,
+                        user: user
+                    });
+                }
 
                 return res.redirect('/private');
             });
