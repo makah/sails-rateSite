@@ -1,8 +1,9 @@
-/* global sails User */
+/* global sails User Employer */
 'use strict';
 
 var _ = require("lodash");
 var sinon = require('sinon');
+var expect = require('chai').expect;
 
 function clearDB(done){
     sails.once('hook:orm:reloaded', done);
@@ -164,16 +165,21 @@ describe('UserModel', function() {
         };
         
         before(function() {
-            // Mocking reCAPTCHA
             return sinon.stub(sails.services.authservice, 'verifyRecaptcha', function(response, clientIP) {
                 return Promise.resolve();
             });
         });
         
-        after(function() {
-          // Restores our mock to the original service
+        beforeEach(function(done){
+            clearDB(done);
+        });
+        
+        after(function(done) {
           sails.services.authservice.verifyRecaptcha.restore();
-          //clearDB(done);
+          User.destroy({}).exec(function(){
+              Employer.destroy({}).exec(done);
+          });
+          
         });
         
         it('should check create function for 3 users', function(done) {
@@ -187,17 +193,16 @@ describe('UserModel', function() {
             }
             
             User.create(users).exec(function(){
-                User.find().then(function(usr){
-                    if(usr.length == 3)
-                        done();
-                    else
-                        done('Length = ' + usr.length + ', should be 3');
+                User.find().exec(function(err, usr){
+                    if(err){
+                        done(err);
+                    }
+                    
+                    expect(usr).to.have.length(i);
+                    done();
                 });
             });
         });
-        
-        
-        
         
     });
 

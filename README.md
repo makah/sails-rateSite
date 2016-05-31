@@ -99,8 +99,9 @@ Começaremos a parte de negócio que cria o conceito de Empregado (Employer) e P
     2. Como todas as outras senhas, eu as coloquei no config/locals.js
 
 ### Fase 4 - Testes ###
-O Sails [aconselha](http://www.zsoltnagy.eu/Writing-Automated-Tests-with-Mocha-and-Chai/) utilizar para os testes o [Mocha](https://mochajs.org/) com [Chai](http://chaijs.com/).
+O Sails [aconselha](http://sailsjs.org/documentation/concepts/testing) utilizar para os testes o [Mocha](https://mochajs.org/) com [Chai](http://chaijs.com/).
 Li um [artigo](http://www.zsoltnagy.eu/Writing-Automated-Tests-with-Mocha-and-Chai/) bem básico que explica muito bem o Mocha + Chai. De qualquer forma achei muito confuso, porque existem 1000 soluções na web e achei difícil encontrar um exemplo completo com explicação - com teste de serviço, mock de serviço e etc.
+
 1. Segui os passos do [Sails/Testing](http://sailsjs.org/documentation/concepts/testing) e com o exemplo do [Tarmo Leppänen](https://github.com/tarlepp/angular-sailsjs-boilerplate-backend/tree/d7968a714af79d1f82a8bbe1554e334a9f8d3f67/test) e [albertosouza](https://github.com/albertosouza/sails-test-example/tree/master/test) - [commit](https://github.com/makah/sails-rateSite/commit/85b8928e56ab599ef4fb82f56459827d1e23efbe)
     1. Mesmo com muita informação, o passo-a-passo do Sails resolveu bem
     2. Só precisei aprender o que eu precisava instalar; alterar o banco de dados para o `localDiskDb`; desativar os hooks que não são necessários para reduzir o tempo de inicialização do Sails
@@ -113,9 +114,12 @@ Li um [artigo](http://www.zsoltnagy.eu/Writing-Automated-Tests-with-Mocha-and-Ch
     2. Tomei como base no artigo do [Sergio Cruz](https://blog.sergiocruz.me/unit-testing-sails-js-how-to-mock-sailsjs-services-in-controllers/)
     3. Usei o [sinon](http://sinonjs.org/)
     4. Estou usando um drop no after() para limpar o banco de dados, mas nessa pergunta temos outra solução http://stackoverflow.com/questions/26063827/drop-the-entire-sails-memory-database
-4. Criar um teste de Controller
-5. Criar um exemplo que dependa de uma base de dados (fixtures)
-6. Fazer todos os testes 
+4. Atualizar o teste para utilizar o [Chai](http://chaijs.com/) - [commit]()
+    1. Atualizei um teste apenas para demostrar o uso do Chai
+5. Criar um teste de integração nos Controller - [commit]()
+    1. Para facilitar os testes, estou usando o [supertest](https://github.com/visionmedia/supertest)
+6. Criar um exemplo que dependa de uma base de dados (fixtures)
+7. Fazer todos os testes 
     
     
     A continuação do [artigo](http://www.zsoltnagy.eu/asynchronous-tests-and-fixtures-with-mocha-and-chaijs/) que explica Fixtures.
@@ -133,9 +137,9 @@ Buitify. Colocar favicon; usar foundation
 - Colocar verificações no cliente
 
 #### Detalhes de implementação ####
-* Para o front/CSS pensei em usar [Foundation](http://foundation.zurb.com/), mas depois de estudar um pouco verifiquei que vou deixar a parte de design para depois. Não tenho competência para isso no momento.
+* Para o front/CSS pensei em usar [Foundation](http://foundation.zurb.com/), mas depois de estudar um pouco decidi deixar a parte de design para depois. Não tenho competência para isso no momento.
 * Utilizei async para algumas tarefas ao invés de callback diretamente - [tutorial](http://sahatyalkabov.com/jsrecipes/#!/backend/organizing-callbacks-with-async). Pessoalmente eu prefiro [Promise](https://github.com/kriskowal/q/wiki/API-Reference) que já uso no angular.js, mas as libs são feitas com callback, por isso preferi utilizar o async a usar uma Promise com wrapper
-* 
+
 
 ### Dificuldades ###
 Eu não consegui usar o `config/local.js`, nem o `config/env/*.js` dentro do `config/passport.js`. Gostaria de usa-lo para salvar o appURL e o GoogleAPI. 
