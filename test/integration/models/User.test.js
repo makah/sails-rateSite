@@ -4,6 +4,7 @@
 var _ = require("lodash");
 var sinon = require('sinon');
 var expect = require('chai').expect;
+var fixtures = require('sails-fixtures');
 
 function clearDB(done){
     sails.once('hook:orm:reloaded', done);
@@ -13,9 +14,32 @@ function clearDB(done){
 describe('UserModel', function() {
 
     describe('#find()', function() {
+        
+        before(function(done) {
+            // Mocking reCAPTCHA
+            sinon.stub(sails.services.authservice, 'verifyRecaptcha', function(response, clientIP) {
+                return response == 'valid' ? Promise.resolve() : Promise.reject();
+            });
+            
+            var config = {dir: './test/fixtures/UserTest/'};
+            fixtures.init(config, done);
+        });
+        
+        after(function(done){
+            sails.services.authservice.verifyRecaptcha.restore();
+            
+            clearDB(done);
+        });
+        
+        
         it('should check find function', function(done) {
-            User.find().then(function(results) {
-                // some tests
+            User.find().then(function(users) {
+                expect(users).to.have.length(5);
+                expect(users).to.not.be.empty;
+                for (var i = users.length; i--; ) {
+                    expect(users[i].name).to.match(/Mr\.Jones-\d+/g);
+                }
+                
                 done();
             })
             .catch(done);
@@ -205,5 +229,7 @@ describe('UserModel', function() {
         });
         
     });
+    
+    describe('#create, find and remove', function(){});
 
 });

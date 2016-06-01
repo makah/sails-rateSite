@@ -17,11 +17,15 @@ before(function before(done) {
         if (err)
             return done(err);
 
-        // here you can load fixtures, etc.
+        console.log('\u058D Sails Lift\n');
         done(err, sails);
     });
 });
 
 after(function(done) {
-    sails.lower(done);
+    console.log('\u058D Sails Lower');
+    
+    sails.lower(function(){
+        setTimeout(done, 1000);
+    });
 });
