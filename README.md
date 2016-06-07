@@ -114,27 +114,23 @@ Li um [artigo](http://www.zsoltnagy.eu/Writing-Automated-Tests-with-Mocha-and-Ch
     2. Tomei como base no artigo do [Sergio Cruz](https://blog.sergiocruz.me/unit-testing-sails-js-how-to-mock-sailsjs-services-in-controllers/)
     3. Usei o [sinon](http://sinonjs.org/)
     4. Estou usando um drop no after() para limpar o banco de dados, mas nessa pergunta temos outra solução http://stackoverflow.com/questions/26063827/drop-the-entire-sails-memory-database
-4. Atualizar o teste para utilizar o [Chai](http://chaijs.com/) - [commit]()
-    1. Atualizei um teste apenas para demostrar o uso do Chai
-5. Criar um teste de integração nos Controller - [commit]()
+4. Criar um teste de integração nos Controller - [commit](https://github.com/makah/sails-rateSite/commit/bfeb8f0f61a602d543960930a4f94841c10be3fd)
     1. Para facilitar os testes, estou usando o [supertest](https://github.com/visionmedia/supertest)
-6. Criar um exemplo que dependa de uma base de dados (fixtures)
-7. Fazer todos os testes 
-    
-    
-    A continuação do [artigo](http://www.zsoltnagy.eu/asynchronous-tests-and-fixtures-with-mocha-and-chaijs/) que explica Fixtures.
-    
-    
-    
-    
+5. Atualizar o teste para utilizar o [Chai](http://chaijs.com/) - [commit](https://github.com/makah/sails-rateSite/commit/0f5b020f35955d3033d0505db9fa78bf79a61f0f)
+    1. Atualizei um teste apenas para demostrar o uso do Chai.
+    2. Preferi utilizar o `expect()`, entendi que evita possíveis erros quando a variável é undefined
+6. Criar um exemplo que dependa de uma base de dados (fixtures) - [commit](https://github.com/makah/sails-rateSite/commit/0cc99e61a2894a3427faa53c96b70c4bf4dc2d65)
+    1. Estou usando os `fixtures` para carregar um conjunto de usuários a serem criados
+    2. [Texto interessante](http://www.zsoltnagy.eu/asynchronous-tests-and-fixtures-with-mocha-and-chaijs/)
+    3. Durante os meus testes eu tive problema com "after all hook", i.e. test.bootstrap.after(), que só possui a linha `sails.lower()`. Eu abri um [ticket no Sails](https://github.com/balderdashy/sails/issues/3751). Como eu acredito que o lower está chamando a callback antes de finalizar todos os processos, eu adicionei um `setTimeout(done, 1000);`. Essa linha pode sair quando o problema for resolvido.
+7. Continuar os testes para 100% de cobertura - incompleto para sempre
+
 Fase 5
     Usar o Angular, de preferência usar esse projeto como back apenas e um front em angular separado
+    Colocar Validações no cliente
 
 Fase 6
-Buitify. Colocar favicon; usar foundation
-
-
-- Colocar verificações no cliente
+    Buitify. Colocar favicon; usar foundation
 
 #### Detalhes de implementação ####
 * Para o front/CSS pensei em usar [Foundation](http://foundation.zurb.com/), mas depois de estudar um pouco decidi deixar a parte de design para depois. Não tenho competência para isso no momento.
