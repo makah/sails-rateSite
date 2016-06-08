@@ -230,6 +230,49 @@ describe('UserModel', function() {
         
     });
     
-    describe('#create, find and remove', function(){});
+    describe('#remove', function(){
+        
+         before(function() {
+            // Mocking reCAPTCHA
+            sinon.stub(sails.services.authservice, 'verifyRecaptcha', function(response, clientIP) {
+                return response == 'valid' ? Promise.resolve() : Promise.reject();
+            });
+        });
+        
+        beforeEach(function(done){
+            var config = {dir: './test/fixtures/UserTest/'};
+            fixtures.init(config, done);
+        });
+        
+        afterEach(function(done){
+            clearDB(done);
+        });
+        
+        after(function(){
+            sails.services.authservice.verifyRecaptcha.restore();
+        });
+        
+        it('should remove one value', function(done) {
+            User.find().then(function(usrs) {
+                return User.destroy(usrs[0].id).then(function(){
+                    done();
+                });
+            }).catch(done);
+        });
+        
+        it('should remove all values', function(done) {
+            User.find().then(function(users) {
+                var ids = [];
+                for (var i = users.length; i--; ) {
+                    ids.push(users[i].id);
+                }
+                
+                return User.destroy(ids).then(function(){
+                    done();
+                });
+            }).catch(done);
+        });
+        
+    });
 
 });
