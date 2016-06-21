@@ -43,7 +43,7 @@ module.exports = {
         googleAccessToken: 'string',
         
         resetPasswordToken: 'string',
-        resetPasswordExpires: 'date',
+        resetPasswordExpires: 'datetime',
         
         toJSON: function() {
             var obj = this.toObject();

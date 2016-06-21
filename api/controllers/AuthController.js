@@ -8,6 +8,7 @@
 var passport = require('passport');
 var crypto = require('crypto');
 
+
 module.exports = {
 
     _config: {
@@ -89,18 +90,25 @@ module.exports = {
                     if (!user) {
                         msg = 'No account with that email address exists.';
                         req.flash('error', msg);
-                        sails.log.error('AuthController.sendTokenMail: ', err, msg);
-                        return callback(err);
+                        sails.log.error('AuthController.sendTokenMail: ', msg);
+                        return res.redirect('/forgotPassword');
                     }
 
                     user.resetPasswordToken = token;
-                    user.resetPasswordExpires = Date.now() + (60 * 60 * 1000);
+                    user.resetPasswordExpires = generatePasswordExpiresDate();
                     user.save(function(err) {
                         return callback(err, token, user);
                     });
                 });
             },
             function(token, user, callback) {
+                if(!user){
+                    msg = "Unable to access User";
+                    sails.log.error('AuthController.sendTokenMail: ', msg);
+                    req.flash('error', msg);
+                    return res.redirect('/forgotPassword');
+                }
+                
                 var data = {
                     recipientName: user.name,
                     senderMail: user.email,
@@ -148,7 +156,7 @@ module.exports = {
 
         var findParam = {
             resetPasswordToken: req.params.token,
-            resetPasswordExpires: {'>': Date.now()}
+            resetPasswordExpires: {'>': (new Date())}
         };
 
         User.findOne(findParam, function(err, user) {
@@ -178,7 +186,7 @@ module.exports = {
             function(callback) {
                 var findParam = {
                     resetPasswordToken: params.token,
-                    resetPasswordExpires: {'>': Date.now()}
+                    resetPasswordExpires: {'>': (new Date())}
                 };
                 
                 sails.log.silly('AuthController.updatePassword',findParam);
@@ -228,3 +236,12 @@ module.exports = {
         });
     },
 };
+
+/////////////////////////
+/// AUXILIAR
+/////////////////////////
+function generatePasswordExpiresDate(){
+    var date = new Date;
+    date.setHours(date.getHours() + 1);
+    return date.toISOString();
+}
