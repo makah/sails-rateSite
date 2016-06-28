@@ -18,9 +18,13 @@ module.exports = {
    ***************************************************************************/
 
   siteName: 'Rate Site',
+  
+  cors: {
+    allRoutes: true
+  }
 
   // models: {
   //   connection: 'someMongodbServer'
   // }
-
+  
 };
