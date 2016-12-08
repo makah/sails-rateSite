@@ -21,17 +21,20 @@ module.exports = {
         passport.authenticate('local', function(err, user, info) {
             if ((err) || (!user)) {
                 return res.send({
-                    message: info.message,
+                    message: info && info.message,
                     user: user
                 });
             }
             req.logIn(user, function(err) {
                 if (err)
                     return res.send(err);
-
-                return res.redirect('/private');
+    
+                return res.send({
+                    message: info && info.message,
+                    user: user
+                });
             });
-
+    
         })(req, res);
     },
      

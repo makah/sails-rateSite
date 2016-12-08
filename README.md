@@ -129,9 +129,6 @@ Fase 5
     Usar o Angular, de preferência usar esse projeto como back apenas e um front em angular separado
     Colocar Validações no cliente
 
-Fase 6
-    Buitify. Colocar favicon; usar foundation
-
 #### Detalhes de implementação ####
 * Para o front/CSS pensei em usar [Foundation](http://foundation.zurb.com/), mas depois de estudar um pouco decidi deixar a parte de design para depois. Não tenho competência para isso no momento.
 * Utilizei async para algumas tarefas ao invés de callback diretamente - [tutorial](http://sahatyalkabov.com/jsrecipes/#!/backend/organizing-callbacks-with-async). Pessoalmente eu prefiro [Promise](https://github.com/kriskowal/q/wiki/API-Reference) que já uso no angular.js, mas as libs são feitas com callback, por isso preferi utilizar o async a usar uma Promise com wrapper

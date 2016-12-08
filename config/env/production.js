@@ -11,6 +11,8 @@
  */
 
 module.exports = {
+  
+  //session.secret = 'MY-SESSION-SECRET';
 
   /***************************************************************************
    * Set the default database connection for models in the production        *
